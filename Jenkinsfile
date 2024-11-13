@@ -1,8 +1,5 @@
 pipeline {
-    agent {
-        // Use a Docker-in-Docker setup
-        docker { image 'docker:20.10.24' }
-    }
+    agent any
     environment {
         DOCKER_BUILDKIT = "1"
         DOCKER_CLI_EXPERIMENTAL = "enabled"
@@ -10,18 +7,25 @@ pipeline {
         IMAGE_NAME = "jenkins"
     }
     stages {
-        stage('Setup Buildx') {
+        stage('Set up QEMU and Docker Buildx') {
             steps {
                 script {
+                    sh 'docker run --rm --privileged multiarch/qemu-user-static --reset -p yes'
                     // Set up Docker Buildx if not already available
                     sh '''
                     docker buildx create --name mybuilder --use || true
-                    docker buildx inspect mybuilder --bootstrap
+                    docker buildx inspect JenkinsDinDbuilder --bootstrap
                     '''
                 }
             }
         }
         stage('Build and Push Jenkins DinD Image') {
+            agent {
+                docker {
+                    image 'docker:20.10.24'
+                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 script {
                     // Build and push multi-platform image
@@ -39,7 +43,7 @@ pipeline {
         always {
             script {
                 // Clean up builder
-                sh 'docker buildx rm mybuilder || true'
+                sh 'docker buildx rm JenkinsDinDbuilder || true'
             }
         }
     }
