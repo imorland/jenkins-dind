@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         DOCKER_BUILDKIT = "1"
         DOCKER_CLI_EXPERIMENTAL = "enabled"
         DOCKER_NAMESPACE = "ianmgg"
@@ -22,6 +23,9 @@ pipeline {
         stage('Build and Push Jenkins DinD Image') {
             steps {
                 script {
+                    // Login to Docker Hub
+                    sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
+
                     // Build and push multi-platform image
                     sh '''
                     docker buildx build \
