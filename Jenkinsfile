@@ -13,7 +13,7 @@ pipeline {
                     sh 'docker run --rm --privileged multiarch/qemu-user-static --reset -p yes'
                     // Set up Docker Buildx if not already available
                     sh '''
-                    docker buildx create --name mybuilder --use || true
+                    docker buildx create --name JenkinsDinDbuilder --use || true
                     docker buildx inspect JenkinsDinDbuilder --bootstrap
                     '''
                 }
