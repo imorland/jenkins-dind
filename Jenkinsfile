@@ -20,12 +20,6 @@ pipeline {
             }
         }
         stage('Build and Push Jenkins DinD Image') {
-            agent {
-                docker {
-                    image 'docker:20.10.24'
-                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
                 script {
                     // Build and push multi-platform image
