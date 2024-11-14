@@ -17,8 +17,7 @@ RUN apt-get update && apt-get install -y \
     $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
     apt-get update && \
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin && \
-    apt-get clean && \
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    apt-get clean
 
 
 # Set environment variable for BuildKit
