@@ -32,7 +32,7 @@ VOLUME /var/jenkins_home
 VOLUME /var/run/docker.sock
 
 # Set default Jenkins user back to Jenkins
-USER jenkins
+#USER jenkins
 
 # Entrypoint for Jenkins
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
