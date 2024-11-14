@@ -21,6 +21,7 @@ docker run -d \
     --name jenkins \
     --restart always \
     --privileged \
+    --memory=16g \
     -p 8088:8080 \
     -p 50000:50000 \
     -v jenkins_home:/var/jenkins_home \

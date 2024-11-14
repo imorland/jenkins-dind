@@ -1,0 +1,8 @@
+{
+    "default-ulimits": {
+        "memlock": {
+            "Soft": -1,
+            "Hard": -1
+        }
+    }
+}

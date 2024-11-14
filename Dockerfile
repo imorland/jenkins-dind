@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin && \
     apt-get clean
 
+COPY daemon.json /etc/docker/daemon.json
+
 
 # Set environment variable for BuildKit
 ENV DOCKER_BUILDKIT=1
