@@ -1,3 +1,4 @@
 # Ignore Docker volumes and other temp files
 jenkins_home
 *.log
+.aider*
