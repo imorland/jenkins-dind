@@ -18,7 +18,15 @@ RUN apt-get update && apt-get install -y \
     apt-get update && \
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin && \
     # Install AWS CLI v2
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-$(dpkg --print-architecture).zip" -o "awscliv2.zip" && \
+    ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; \
+    elif [ "$ARCH" = "arm64" ]; then \
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"; \
+    else \
+        echo "Unsupported architecture: $ARCH"; \
+        exit 1; \
+    fi && \
     apt-get install -y unzip && \
     unzip awscliv2.zip && \
     ./aws/install && \
