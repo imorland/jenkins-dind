@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+        WATCHTOWER_TOKEN = credentials('watchtower-token')
         DOCKER_BUILDKIT = "1"
         DOCKER_CLI_EXPERIMENTAL = "enabled"
         DOCKER_NAMESPACE = "ianmgg"
@@ -36,6 +37,18 @@ pipeline {
                 }
             }
         }
+        stage('Notify Watchtower') {
+            steps {
+                script {
+                // Trigger an on‑demand update of the 'jenkins' container
+                sh '''
+                curl -X POST \
+                    -H "Authorization: Bearer $WATCHTOWER_TOKEN" \
+                    http://host.docker.internal:8081/v1/update?containers=jenkins
+                '''
+            }
+        }
+}
     }
     post {
         always {
