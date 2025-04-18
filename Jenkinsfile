@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'multiarch'  // Use any agent with the 'multiarch' label
-    }
+    agent any  // Use any available agent, including the master
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         WATCHTOWER_TOKEN       = credentials('watchtower-token')
@@ -12,19 +10,6 @@ pipeline {
         AGENT_IMAGE_NAME        = 'jenkins-agent'
     }
     stages {
-        stage('Prepare Workspace') {
-            steps {
-                // Clean workspace and initialize git
-                sh '''
-                rm -rf .git || true
-                git init
-                git config --global --add safe.directory "*"
-                git remote add origin https://github.com/imorland/jenkins-dind.git
-                git fetch --depth 1 origin master
-                git checkout FETCH_HEAD
-                '''
-            }
-        }
         stage('Set up QEMU and Docker Buildx') {
             steps {
                 script {
@@ -80,10 +65,8 @@ pipeline {
     }
     post {
         always {
-            node(env.NODE_NAME) {
-                // Clean up the Buildx builder
-                sh 'docker buildx rm JenkinsDinDbuilder || true'
-            }
+            // Clean up the Buildx builder
+            sh 'docker buildx rm JenkinsDinDbuilder || true'
         }
     }
 }
