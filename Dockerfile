@@ -1,5 +1,5 @@
-# Start from the official Jenkins LTS image
-FROM jenkins/jenkins:lts
+# Start from the official Jenkins LTS image with Java 21
+FROM jenkins/jenkins:lts-jdk21
 
 # Switch to root user for installing packages
 USER root

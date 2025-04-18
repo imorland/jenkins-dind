@@ -40,7 +40,7 @@ pipeline {
                     sh '''
                     docker run -d --rm \
                       busybox:1.35 \
-                      sh -c "sleep 600 && \
+                      sh -c "sleep 120 && \
                         wget -qO- \\
                           --header 'Authorization: Bearer $WATCHTOWER_TOKEN' \\
                           http://host.docker.internal:8081/v1/update?containers=jenkins"
