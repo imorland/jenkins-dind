@@ -67,8 +67,10 @@ pipeline {
     }
     post {
         always {
-            // Clean up the Buildx builder
-            sh 'docker buildx rm JenkinsDinDbuilder || true'
+            node(env.NODE_NAME) {
+                // Clean up the Buildx builder
+                sh 'docker buildx rm JenkinsDinDbuilder || true'
+            }
         }
     }
 }
