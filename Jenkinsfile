@@ -12,6 +12,19 @@ pipeline {
         AGENT_IMAGE_NAME        = 'jenkins-agent'
     }
     stages {
+        stage('Prepare Workspace') {
+            steps {
+                // Clean workspace and initialize git
+                sh '''
+                rm -rf .git || true
+                git init
+                git config --global --add safe.directory "*"
+                git remote add origin https://github.com/imorland/jenkins-dind.git
+                git fetch --depth 1 origin master
+                git checkout FETCH_HEAD
+                '''
+            }
+        }
         stage('Set up QEMU and Docker Buildx') {
             steps {
                 script {

@@ -21,11 +21,16 @@ RUN apt-get update && apt-get install -y \
     apt-get install -y docker-ce-cli docker-buildx-plugin && \
     apt-get clean
 
+# Configure Git
+RUN git config --system user.email "jenkins@example.com" && \
+    git config --system user.name "Jenkins" && \
+    git config --system core.longpaths true
+
 # Create directory for Docker config
 RUN mkdir -p /home/jenkins/.docker && \
     chown -R jenkins:jenkins /home/jenkins/.docker
 
-# Create a startup script to fix Docker socket permissions
+# Create a startup script to fix Docker socket permissions and prepare workspace
 RUN echo '#!/bin/bash\n\
 # Fix Docker socket permissions\n\
 if [ -S /var/run/docker.sock ]; then\n\
@@ -38,6 +43,10 @@ if [ -S /var/run/docker.sock ]; then\n\
   fi\n\
   chmod 666 /var/run/docker.sock\n\
 fi\n\
+\n\
+# Ensure workspace directory exists and has correct permissions\n\
+mkdir -p /home/jenkins/agent/workspace\n\
+chown -R jenkins:jenkins /home/jenkins/agent\n\
 \n\
 # Execute the original entrypoint\n\
 exec /usr/local/bin/jenkins-agent "$@"' > /usr/local/bin/docker-entrypoint.sh && \
