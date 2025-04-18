@@ -38,7 +38,7 @@ pipeline {
                 script {
                     // One‑off container that sleeps 10m then notifies Watchtower
                     sh '''
-                    docker run --rm \
+                    docker run -d --rm \
                       busybox:1.35 \
                       sh -c "sleep 600 && \
                         wget -qO- \\
