@@ -37,17 +37,22 @@ pipeline {
                 }
             }
         }
-        stage('Notify Watchtower') {
-            steps {
-                script {
-                // Trigger an on‑demand update of the 'jenkins' container
-                sh '''
-                curl -X POST \
-                    -H "Authorization: Bearer $WATCHTOWER_TOKEN" \
-                    http://host.docker.internal:8081/v1/update?containers=jenkins
-                '''
+        stage('Schedule Watchtower Update') {
+          steps {
+            script {
+              // Launch a one‑off BusyBox container on the host, sleep 10m, then hit Watchtower
+              sh '''
+                docker run --rm \
+                  busybox:1.35 \
+                  sh -c "sleep 600 && \
+                    wget -qO- \\
+                      --header 'Authorization: Bearer $WATCHTOWER_TOKEN' \\
+                      http://host.docker.internal:8081/v1/update?containers=jenkins"
+              '''
             }
+          }
         }
+
 }
     }
     post {
