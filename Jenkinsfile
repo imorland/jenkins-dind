@@ -10,7 +10,6 @@ pipeline {
         DOCKER_CLI_EXPERIMENTAL = 'enabled'
         DOCKER_NAMESPACE        = 'ianmgg'
         JENKINS_IMAGE_NAME      = 'jenkins'
-        AGENT_IMAGE_NAME        = 'jenkins-agent'
     }
     stages {
         stage('Set up QEMU and Docker Buildx') {
@@ -32,19 +31,6 @@ pipeline {
                     docker buildx build \
                         --platform linux/amd64,linux/arm64 \
                         -t ${DOCKER_NAMESPACE}/${JENKINS_IMAGE_NAME}:latest \
-                        --push .
-                    '''
-                }
-            }
-        }
-        stage('Build and Push Jenkins Agent Image') {
-            steps {
-                script {
-                    sh '''
-                    docker buildx build \
-                        --platform linux/amd64,linux/arm64 \
-                        -t ${DOCKER_NAMESPACE}/${AGENT_IMAGE_NAME}:latest \
-                        -f jenkins-agent.Dockerfile \
                         --push .
                     '''
                 }
