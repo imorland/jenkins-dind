@@ -1,5 +1,8 @@
 pipeline {
     agent any  // Use any available agent, including the master
+    options {
+            skipDefaultCheckout(true) // Skip the default checkout
+        }
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         WATCHTOWER_TOKEN       = credentials('watchtower-token')
@@ -10,6 +13,12 @@ pipeline {
         AGENT_IMAGE_NAME        = 'jenkins-agent'
     }
     stages {
+        stage('Checkout') {
+                steps {
+                    cleanWs() // Clean workspace before checkout
+                    checkout scm // Explicit checkout
+                }
+            }
         stage('Set up QEMU and Docker Buildx') {
             steps {
                 script {
@@ -64,9 +73,11 @@ pipeline {
         }
     }
     post {
-        always {
-            // Clean up the Buildx builder
-            sh 'docker buildx rm JenkinsDinDbuilder || true'
+            always {
+                node(null) {
+                    // Clean up the Buildx builder
+                    sh 'docker buildx rm JenkinsDinDbuilder || true'
+                }
+            }
         }
-    }
 }
