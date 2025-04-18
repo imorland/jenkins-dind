@@ -12,7 +12,11 @@ FROM jenkins/inbound-agent:latest-jdk21
      qemu-user-static \
      binfmt-support \
      sudo \
-     git && \
+     git \
+     # Add more memory management tools for ARM emulation
+     procps \
+     sysstat \
+     && \
      mkdir -p /etc/apt/keyrings && \
      curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
@@ -59,6 +63,18 @@ FROM jenkins/inbound-agent:latest-jdk21
  # Verify Git is working properly\n\
  echo "Checking Git configuration:"\n\
  sudo -u jenkins git config --list\n\
+ \n\
+ # Setup QEMU for better ARM emulation if this is an ARM agent\n\
+ if [[ "$(hostname)" == *"arm"* ]] || [[ "$(hostname)" == *"agent2"* ]]; then\n\
+   echo "Setting up enhanced QEMU for ARM builds..."\n\
+   docker run --rm --privileged tonistiigi/binfmt:latest --install arm64 || docker run --rm --privileged multiarch/qemu-user-static --reset -p yes\n\
+   # Optimize system for QEMU performance\n\
+   echo 10 > /proc/sys/vm/nr_hugepages || true\n\
+   echo 1024 > /proc/sys/vm/max_map_count || true\n\
+   echo 1 > /proc/sys/vm/overcommit_memory || true\n\
+   # Increase shared memory for ARM builds\n\
+   mount -o remount,size=4G /dev/shm || true\n\
+ fi\n\
  \n\
  # Execute the original entrypoint\n\
  exec /usr/local/bin/jenkins-agent "$@"' > /usr/local/bin/docker-entrypoint.sh && \
