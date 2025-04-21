@@ -9,7 +9,10 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
-    lsb-release && \
+    lsb-release \
+    qemu-user-static \
+    binfmt-support \
+    && \
     mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg | \
     gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
@@ -17,6 +20,8 @@ RUN apt-get update && apt-get install -y \
     $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
     apt-get update && \
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin && \
+    # register *all* QEMU binfmt handlers at build time
++   update-binfmts --enable qemu-aarch64 --enable qemu-arm \
     # Install AWS CLI v2
     ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "amd64" ]; then \
@@ -35,6 +40,9 @@ RUN apt-get update && apt-get install -y \
 
 COPY ./daemon.json /etc/docker/
 
+# Ensure at runtime that the DinD daemon can actually exec QEMU
+# (this only works if you launch this container with --privileged)
+RUN chmod u+s /usr/bin/newuidmap /usr/bin/newgidmap
 
 # Set environment variable for BuildKit
 ENV DOCKER_BUILDKIT=1
